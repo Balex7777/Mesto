@@ -1,6 +1,15 @@
-const listPopups = document.querySelectorAll(".popup")
-const listPopupButtons = document.querySelectorAll(".popup__button_func_open")
+const profilePopup = document.querySelector(".popup_type_edit")
+const cardPopup = document.querySelector(".popup_type_new-card")
+const imagePopup = document.querySelector(".popup_type_image")
+
+const listPopups = [imagePopup, profilePopup, cardPopup]
+
+const profilePopupButton = document.querySelector(".profile__edit-button")
+const cardPopupButton = document.querySelector(".profile__add-button")
+
 const listCloseButtons = document.querySelectorAll(".popup__close")
+
+console.log(listCloseButtons)
 
 // @todo: Темплейт карточки
 function createCard(name, link){
@@ -31,10 +40,20 @@ function closeModal(popup) {
 	popup.classList.remove('popup_is-opened');
 }
 
-listPopupButtons.forEach((item, index) => {
-	item.addEventListener("click", function(e){
-		openModal(listPopups[index])
-	})
+function openEditPopup(){
+	const inputName = profilePopup.querySelector(".popup__input_type_name")
+	const inputDescription = profilePopup.querySelector(".popup__input_type_description")
+
+	inputName.value = document.querySelector(".profile__title").textContent
+	inputDescription.value = document.querySelector(".profile__description").textContent
+	
+	openModal(profilePopup)
+}
+
+profilePopupButton.addEventListener("click", openEditPopup)
+
+cardPopupButton.addEventListener("click", function(e){
+	openModal(cardPopup)
 })
 
 listCloseButtons.forEach((item, index) => {
