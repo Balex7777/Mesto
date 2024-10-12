@@ -58,6 +58,7 @@ export const loadPage = (placesList, cardSettings) => {
 		User.cohort = data.cohort
 		document.querySelector(".profile__title").textContent = User.name;
   	document.querySelector(".profile__description").textContent = User.about;
+		document.querySelector(".profile__image").style.backgroundImage = `url("${User.avatar}")`;
 		console.log("user loaded")
 		loadCardsFromServer(placesList, cardSettings)
 	}).catch((err) => {
@@ -168,6 +169,28 @@ export const removeCard = (cardId, cardElement) => {
 		return Promise.reject(res.status)
 	}).then(() => {
 		cardElement.closest(".card").remove();
+	}).catch((err)=>{
+		console.error("Error: " + err)
+	})
+}
+
+export const setAvatar = (url) => {
+	fetch(`${config.baseUrl}/users/me/avatar`, {
+		method: "PATCH",
+		headers:{
+			authorization: config.headers.authorization,
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify({
+			avatar: url
+		})
+	}).then((res) => {
+		if (res.status === 200) {
+			return res.json()
+		}
+		return Promise.reject(res.status)
+	}).then((data) => {
+		document.querySelector(".profile__image").style.backgroundImage = `url("${data.avatar}")`;
 	}).catch((err)=>{
 		console.error("Error: " + err)
 	})
