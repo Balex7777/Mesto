@@ -2,6 +2,7 @@ import '../pages/index.css'; // добавьте импорт главного �
 import { enableValidation } from './validation';
 import { renderCards, createCard } from './cards';
 import { openModal, closeModal, closeModalByOverlay } from './modal';
+import { loadCardsFromServer, loadUser, addNewCard } from './api';
 
 const placesList = document.querySelector(".places__list");
 
@@ -65,7 +66,8 @@ const handleProfileFormSubmit = (evt) => {
 
 const handleNewCardFormSubmit = (evt) => {
   evt.preventDefault();
-  placesList.prepend(createCard(inputCardName.value, inputUrl.value, cardSettings));
+	addNewCard(inputCardName.value, inputUrl.value)
+  // placesList.prepend(createCard(inputCardName.value, inputUrl.value, cardSettings));
   closeModal(cardPopup);
 }
 
@@ -92,3 +94,6 @@ listPopups.forEach(popup => {
 
 profileFormElement.addEventListener('submit', handleProfileFormSubmit);
 newCardFormElement.addEventListener('submit', handleNewCardFormSubmit);
+
+loadCardsFromServer(placesList, cardSettings)
+loadUser()
