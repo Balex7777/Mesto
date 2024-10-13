@@ -21,6 +21,13 @@ const setLoadingButton = (button, isLoading, loadingText = "Сохранение
   button.textContent = isLoading ? loadingText : defaultText;
 };
 
+const clearInputsInPopup = (popup) => {
+	const inputs = popup.querySelectorAll("input")
+	inputs.forEach((input) => {
+		input.value = ""
+	})
+}
+
 export const loadCardsFromServer = (placesList, cardSettings) => {
 	fetch(`${config.baseUrl}/cards`, {
 		method: "GET",
@@ -58,7 +65,6 @@ export const loadPage = (placesList, cardSettings) => {
 		document.querySelector(".profile__title").textContent = User.name;
   	document.querySelector(".profile__description").textContent = User.about;
 		document.querySelector(".profile__image").style.backgroundImage = `url("${User.avatar}")`;
-		console.log("user loaded")
 		loadCardsFromServer(placesList, cardSettings)
 	}).catch((err) => {
 		console.error("Error: " + err)
@@ -85,6 +91,7 @@ export const addNewCard = (name, link, placesList, cardSettings, popup) => {
 		console.log(card)
 		placesList.prepend(createCard(card, cardSettings));
 		closeModal(popup)
+		clearInputsInPopup(popup)
 	}).catch((err) => {
 		console.error("Error: " + err)
 	}).finally(() => {
@@ -114,6 +121,7 @@ export const editProfile = (name, about, popup) => {
 		document.querySelector(".profile__title").textContent = user.name;
   	document.querySelector(".profile__description").textContent = user.about;
 		closeModal(popup)
+		clearInputsInPopup(popup)
 	}).catch((err)=>{
 		console.error("Error: " + err)
 	}).finally(() => {
@@ -187,6 +195,7 @@ export const setAvatar = (url, popup) => {
 	}).then((data) => {
 		document.querySelector(".profile__image").style.backgroundImage = `url("${data.avatar}")`;
 		closeModal(popup)
+		clearInputsInPopup(popup)
 	}).catch((err)=>{
 		console.error("Error: " + err)
 	}).finally(() => {

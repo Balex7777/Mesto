@@ -33,7 +33,7 @@
    ```bash
    git clone https://github.com/Balex7777/Mesto.git
    ```
-2. Перейдите в директорию репозитоиия.
+2. Перейдите в директорию репозитория.
 	```bash
    cd Mesto
    ```
