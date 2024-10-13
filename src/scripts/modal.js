@@ -12,6 +12,12 @@ export const closeModalByOverlay = (e) => {
   closeModal(e.target);
 };
 
+export const openImageModal = (src, caption, imagePopup) => {
+  imagePopup.querySelector(".popup__image").src = src;
+  imagePopup.querySelector(".popup__caption").textContent = caption;
+  openModal(imagePopup);
+};
+
 function closeByEsc(evt) {
   if (evt.key === "Escape") {
     const openedPopup = document.querySelector(".popup_is-opened");

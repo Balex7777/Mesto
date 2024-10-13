@@ -1,7 +1,8 @@
 import "../pages/index.css";
 import { enableValidation } from "./validation";
 import { openModal, closeModal, closeModalByOverlay } from "./modal";
-import { addNewCard, editProfile, loadPage, setAvatar } from "./api";
+import { addNewCard, editProfile, loadUserFromServer, loadCardsFromServer, setAvatar } from "./api";
+import { renderCards, createCard } from "./cards";
 
 const placesList = document.querySelector(".places__list");
 
@@ -9,14 +10,6 @@ const profilePopup = document.querySelector(".popup_type_edit");
 const cardPopup = document.querySelector(".popup_type_new-card");
 const imagePopup = document.querySelector(".popup_type_image");
 const avatarPopup = document.querySelector(".popup_type_avatar");
-
-const listPopups = [imagePopup, profilePopup, cardPopup, avatarPopup];
-
-const profilePopupButton = document.querySelector(".profile__edit-button");
-const cardPopupButton = document.querySelector(".profile__add-button");
-const avatarPopupButton = document.querySelector(".profile__image");
-
-const listCloseButtons = document.querySelectorAll(".popup__close");
 
 const inputName = profilePopup.querySelector(".popup__input_type_name");
 const inputDescription = profilePopup.querySelector(".popup__input_type_description");
@@ -41,63 +34,150 @@ const cardSettings = {
   cardDeleteButton: ".card__delete-button",
   cardLikes: ".card__likes-num",
   card: ".card",
+	imagePopup: ".popup_type_image",
+	cardTemplate: "#card-template"
 };
 
-const openEditPopup = () => {
-  inputName.value = document.querySelector(".profile__title").textContent;
-  inputDescription.value = document.querySelector(".profile__description").textContent;
+export const User = {
+  name: "",
+  about: "",
+  avatar: "",
+  _id: "",
+  cohort: "",
+};
+
+const profileTitle = document.querySelector(".profile__title")
+const profileDescription = document.querySelector(".profile__description")
+const profileImage = document.querySelector(".profile__image")
+const udpateProfile = () => {
+	profileTitle.textContent = User.name;
+  profileDescription.textContent = User.about;
+  profileImage.style.backgroundImage = `url("${User.avatar}")`;
+}
+
+const updateUserData = (userData) => {
+  User.name = userData.name;
+  User.about = userData.about;
+  User.avatar = userData.avatar;
+  User._id = userData._id;
+  User.cohort = userData.cohort;
+	udpateProfile()
+};
+
+const setLoadingButton = (
+  button,
+  isLoading,
+  loadingText = "Сохранение...",
+  defaultText = "Сохранить"
+) => {
+  button.textContent = isLoading ? loadingText : defaultText;
+};
+
+const setCloseEvent = () => {
+	const closeButtons = document.querySelectorAll(".popup__close");
+	closeButtons.forEach((button) => {
+		button.addEventListener("click", () => {
+			const popup = button.closest(".popup");
+			closeModal(popup);
+		});
+	});
+}
+
+const setAnimationOnPopup = () => {
+	const popups = [imagePopup, profilePopup, cardPopup, avatarPopup];
+	popups.forEach((popup) => {
+		popup.classList.add("popup_is-animated");
+		popup.addEventListener("click", closeModalByOverlay);
+	});
+}
+
+const openProfilePopup = () => {
+  inputName.value = profileTitle.textContent;
+  inputDescription.value = profileDescription.textContent;
   openModal(profilePopup);
-};
-
-export const openImageModal = (src, caption) => {
-  document.querySelector(".popup__image").src = src;
-  document.querySelector(".popup__caption").textContent = caption;
-  openModal(imagePopup);
 };
 
 const handleProfileFormSubmit = (evt) => {
   evt.preventDefault();
-  editProfile(inputName.value, inputDescription.value, profilePopup);
+  const submitButton = profilePopup.querySelector(".button");
+  setLoadingButton(submitButton, true);
+  editProfile(inputName.value, inputDescription.value)
+    .then((user) => {
+      updateUserData(user)
+      udpateProfile()
+      closeModal(profilePopup);
+    })
+    .catch((err) => {
+      console.error("Error: " + err);
+    })
+    .finally(() => {
+      setLoadingButton(submitButton, false);
+    });
 };
 
 const handleNewCardFormSubmit = (evt) => {
   evt.preventDefault();
+  const submitButton = cardPopup.querySelector(".button");
+  setLoadingButton(submitButton, true);
   addNewCard(
     inputCardName.value,
     inputUrl.value,
-    placesList,
-    cardSettings,
-    cardPopup
-  );
+  )
+    .then((card) => {
+      placesList.prepend(createCard(card, cardSettings));
+      closeModal(cardPopup);
+			evt.target.reset();
+    })
+    .catch((err) => {
+      console.error("Error: " + err);
+    })
+    .finally(() => {
+      setLoadingButton(submitButton, false);
+    });
 };
 
 const handleEditAvatarSubmit = (evt) => {
-  evt.preventDefault();
-  setAvatar(inputUrlAvatar.value, avatarPopup);
+	evt.preventDefault();
+  const submitButton = avatarPopup.querySelector(".button");
+  setLoadingButton(submitButton, true);
+  setAvatar(inputUrlAvatar.value)
+    .then((user) => {
+			updateUserData(user)
+      closeModal(avatarPopup);
+			evt.target.reset();
+    })
+    .catch((err) => {
+      console.error("Error: " + err);
+    })
+    .finally(() => {
+      setLoadingButton(submitButton, false);
+    });
 };
 
 // Инициализация событий
-loadPage(placesList, cardSettings);
+Promise.all([loadCardsFromServer(), loadUserFromServer()])
+  .then(([cards, userData]) => {
+    updateUserData(userData);
+    renderCards(cards, placesList, cardSettings);
+  })
+  .catch((err) => {
+    console.error("Error: " + err);
+  });
 
 enableValidation(validationSettings);
 
-profilePopupButton.addEventListener("click", openEditPopup);
+setCloseEvent();
 
+setAnimationOnPopup();
+
+const profilePopupButton = document.querySelector(".profile__edit-button");
+profilePopupButton.addEventListener("click", openProfilePopup);
+
+const cardPopupButton = document.querySelector(".profile__add-button");
 cardPopupButton.addEventListener("click", () => openModal(cardPopup));
 
+const avatarPopupButton = document.querySelector(".profile__image");
 avatarPopupButton.addEventListener("click", () => openModal(avatarPopup));
-
-listCloseButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const popup = button.closest(".popup");
-    closeModal(popup);
-  });
-});
-
-listPopups.forEach((popup) => {
-  popup.classList.add("popup_is-animated");
-  popup.addEventListener("click", closeModalByOverlay);
-});
 
 document.forms.editProfile.addEventListener("submit", handleProfileFormSubmit);
 document.forms.newPlace.addEventListener("submit", handleNewCardFormSubmit);

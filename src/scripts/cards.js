@@ -1,11 +1,10 @@
-import { openImageModal } from ".";
-import { setLike, removeLike, User, removeCard } from "./api";
-
-const cardTemplate = document
-  .querySelector("#card-template")
-  .content.querySelector(".card");
+import { User } from ".";
+import { setLike, removeLike, removeCard } from "./api";
+import { openImageModal } from "./modal";
 
 export const createCard = (cardData, cardSettings) => {
+	const imagePopup = document.querySelector(cardSettings.imagePopup);
+	const cardTemplate = document.querySelector(cardSettings.cardTemplate).content.querySelector(cardSettings.card);
   const cardElement = cardTemplate.cloneNode(true);
   const cardImage = cardElement.querySelector(cardSettings.cardImage);
   const numLikes = cardElement.querySelector(cardSettings.cardLikes);
@@ -29,24 +28,50 @@ export const createCard = (cardData, cardSettings) => {
   likeButton.addEventListener("click", (e) => {
     if (!isLiked) {
       e.target.classList.add(cardSettings.cardLikeButtonActive);
-      setLike(cardData._id, numLikes);
+
+      setLike(cardData._id)
+        .then((card) => {
+          numLikes.textContent = card.likes.length;
+        })
+        .catch((err) => {
+          console.error("Error: " + err);
+        });
     } else {
       e.target.classList.remove(cardSettings.cardLikeButtonActive);
-      removeLike(cardData._id, numLikes);
+      removeLike(cardData._id)
+        .then((card) => {
+          numLikes.textContent = card.likes.length;
+        })
+        .catch((err) => {
+          console.error("Error: " + err);
+        });
     }
     isLiked = !isLiked;
   });
 
   deleteButton.addEventListener("click", (e) => {
-    removeCard(cardData._id, e.target);
+    removeCard(cardData._id).then(() => {
+      e.target.closest(".card").remove();
+    })
+    .catch((err) => {
+      console.error("Error: " + err);
+    });
   });
 
   cardImage.addEventListener("click", (e) => {
     openImageModal(
       cardImage.src,
-      cardElement.querySelector(cardSettings.cardTitle).textContent
+      cardElement.querySelector(cardSettings.cardTitle).textContent,
+			imagePopup
     );
   });
 
   return cardElement;
 };
+
+
+export const renderCards = (cards, placesList, cardSettings) => {
+	cards.forEach((card) => {
+		placesList.append(createCard(card, cardSettings));
+	});
+}
