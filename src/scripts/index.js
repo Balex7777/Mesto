@@ -1,31 +1,29 @@
-import '../pages/index.css'; // добавьте импорт главного файла стилей 
+import '../pages/index.css';
 import { enableValidation } from './validation';
-import { renderCards, createCard } from './cards';
 import { openModal, closeModal, closeModalByOverlay } from './modal';
+import { addNewCard, editProfile, loadPage, setAvatar } from './api';
 
 const placesList = document.querySelector(".places__list");
 
 const profilePopup = document.querySelector(".popup_type_edit");
 const cardPopup = document.querySelector(".popup_type_new-card");
 const imagePopup = document.querySelector(".popup_type_image");
+const avatarPopup = document.querySelector(".popup_type_avatar")
 
-const listPopups = [imagePopup, profilePopup, cardPopup];
+const listPopups = [imagePopup, profilePopup, cardPopup, avatarPopup];
 
 const profilePopupButton = document.querySelector(".profile__edit-button");
 const cardPopupButton = document.querySelector(".profile__add-button");
+const avatarPopupButton = document.querySelector(".profile__image");
 
 const listCloseButtons = document.querySelectorAll(".popup__close");
 
 const inputName = profilePopup.querySelector(".popup__input_type_name");
 const inputDescription = profilePopup.querySelector(".popup__input_type_description");
-
-const profileFormElement = document.querySelector(".popup__form[name='edit-profile']");
 const inputCardName = cardPopup.querySelector(".popup__input_type_card-name");
 const inputUrl = cardPopup.querySelector(".popup__input_type_url");
+const inputUrlAvatar = avatarPopup.querySelector(".popup__input_type_url");
 
-const newCardFormElement = document.querySelector(".popup__form[name='new-place']");
-
-// Создание объекта с настройками валидации
 const validationSettings = {
   formSelector: '.popup__form',
   inputSelector: '.popup__input',
@@ -41,6 +39,7 @@ const cardSettings = {
 	cardLikeButton: '.card__like-button',
 	cardLikeButtonActive: 'card__like-button_is-active',
 	cardDeleteButton: '.card__delete-button',
+	cardLikes: '.card__likes-num',
 	card: '.card'
 }
 
@@ -58,25 +57,29 @@ export const openImageModal = (src, caption) => {
 
 const handleProfileFormSubmit = (evt) => {
   evt.preventDefault();
-  document.querySelector(".profile__title").textContent = inputName.value;
-  document.querySelector(".profile__description").textContent = inputDescription.value;
-  closeModal(profilePopup);
+	editProfile(inputName.value, inputDescription.value, profilePopup)
 }
 
 const handleNewCardFormSubmit = (evt) => {
   evt.preventDefault();
-  placesList.prepend(createCard(inputCardName.value, inputUrl.value, cardSettings));
-  closeModal(cardPopup);
+	addNewCard(inputCardName.value, inputUrl.value, placesList, cardSettings, cardPopup)
+}
+
+const handleEditAvatarSubmit = (evt) => {
+  evt.preventDefault();
+	setAvatar(inputUrlAvatar.value, avatarPopup)
 }
 
 // Инициализация событий
-renderCards(placesList, cardSettings);
+loadPage(placesList, cardSettings)
 
 enableValidation(validationSettings);
 
 profilePopupButton.addEventListener("click", openEditPopup);
 
 cardPopupButton.addEventListener("click", () => openModal(cardPopup));
+
+avatarPopupButton.addEventListener("click", () => openModal(avatarPopup))
 
 listCloseButtons.forEach(button => {
   button.addEventListener("click", () => {
@@ -90,5 +93,6 @@ listPopups.forEach(popup => {
 	popup.addEventListener("click", closeModalByOverlay)
 })
 
-profileFormElement.addEventListener('submit', handleProfileFormSubmit);
-newCardFormElement.addEventListener('submit', handleNewCardFormSubmit);
+document.forms.editProfile.addEventListener('submit', handleProfileFormSubmit)
+document.forms.newPlace.addEventListener('submit', handleNewCardFormSubmit);
+document.forms.editAvatar.addEventListener('submit', handleEditAvatarSubmit);
