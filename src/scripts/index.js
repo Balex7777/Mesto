@@ -1,7 +1,7 @@
-import '../pages/index.css'; // добавьте импорт главного файла стилей 
+import '../pages/index.css';
 import { enableValidation } from './validation';
 import { openModal, closeModal, closeModalByOverlay } from './modal';
-import { loadCardsFromServer, loadUser, addNewCard, editProfile, loadPage, setAvatar } from './api';
+import { addNewCard, editProfile, loadPage, setAvatar } from './api';
 
 const placesList = document.querySelector(".places__list");
 
@@ -24,7 +24,6 @@ const inputCardName = cardPopup.querySelector(".popup__input_type_card-name");
 const inputUrl = cardPopup.querySelector(".popup__input_type_url");
 const inputUrlAvatar = avatarPopup.querySelector(".popup__input_type_url");
 
-// Создание объекта с настройками валидации
 const validationSettings = {
   formSelector: '.popup__form',
   inputSelector: '.popup__input',
@@ -58,20 +57,17 @@ export const openImageModal = (src, caption) => {
 
 const handleProfileFormSubmit = (evt) => {
   evt.preventDefault();
-	editProfile(inputName.value, inputDescription.value)
-  closeModal(profilePopup);
+	editProfile(inputName.value, inputDescription.value, profilePopup)
 }
 
 const handleNewCardFormSubmit = (evt) => {
   evt.preventDefault();
-	addNewCard(inputCardName.value, inputUrl.value, placesList, cardSettings)
-  closeModal(cardPopup);
+	addNewCard(inputCardName.value, inputUrl.value, placesList, cardSettings, cardPopup)
 }
 
 const handleEditAvatarSubmit = (evt) => {
   evt.preventDefault();
-	setAvatar(inputUrlAvatar.value)
-  closeModal(avatarPopup);
+	setAvatar(inputUrlAvatar.value, avatarPopup)
 }
 
 // Инициализация событий
