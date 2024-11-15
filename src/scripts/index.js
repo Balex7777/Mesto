@@ -10,12 +10,15 @@ const profilePopup = document.querySelector(".popup_type_edit");
 const cardPopup = document.querySelector(".popup_type_new-card");
 const imagePopup = document.querySelector(".popup_type_image");
 const avatarPopup = document.querySelector(".popup_type_avatar");
+const authorizationPopup = document.querySelector(".popup_type_authorization");
 
 const inputName = profilePopup.querySelector(".popup__input_type_name");
 const inputDescription = profilePopup.querySelector(".popup__input_type_description");
 const inputCardName = cardPopup.querySelector(".popup__input_type_card-name");
 const inputUrl = cardPopup.querySelector(".popup__input_type_url");
 const inputUrlAvatar = avatarPopup.querySelector(".popup__input_type_url");
+const inputToken = authorizationPopup.querySelector(".popup__input_type_token");
+const inputGruop = authorizationPopup.querySelector(".popup__input_type_group");
 
 const validationSettings = {
   formSelector: ".popup__form",
@@ -45,6 +48,9 @@ export const User = {
   _id: "",
   cohort: "",
 };
+
+export let token;
+export let group;
 
 const profileTitle = document.querySelector(".profile__title")
 const profileDescription = document.querySelector(".profile__description")
@@ -154,15 +160,26 @@ const handleEditAvatarSubmit = (evt) => {
     });
 };
 
-// Инициализация событий
-Promise.all([loadCardsFromServer(), loadUserFromServer()])
-  .then(([cards, userData]) => {
-    updateUserData(userData);
-    renderCards(cards, placesList, cardSettings);
-  })
-  .catch((err) => {
-    console.error("Error: " + err);
-  });
+const handleAuthorization = (evt) => {
+	evt.preventDefault()
+  const submitButton = authorizationPopup.querySelector(".button");
+  setLoadingButton(submitButton, true);
+	token = inputToken.value
+	group = inputGruop.value
+	Promise.all([loadCardsFromServer(), loadUserFromServer()])
+		.then(([cards, userData]) => {
+			updateUserData(userData);
+			renderCards(cards, placesList, cardSettings);
+		})
+		.catch((err) => {
+			console.error("Error: " + err);
+			alert("Error: " + err)
+		})
+		.finally(() => {
+			closeModal(authorizationPopup)
+			setLoadingButton(submitButton, false)
+		})
+}
 
 enableValidation(validationSettings);
 
@@ -182,3 +199,4 @@ avatarPopupButton.addEventListener("click", () => openModal(avatarPopup));
 document.forms.editProfile.addEventListener("submit", handleProfileFormSubmit);
 document.forms.newPlace.addEventListener("submit", handleNewCardFormSubmit);
 document.forms.editAvatar.addEventListener("submit", handleEditAvatarSubmit);
+document.forms.authorization.addEventListener("submit", handleAuthorization);

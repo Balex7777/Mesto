@@ -1,16 +1,20 @@
-const config = {
-  baseUrl: "https://nomoreparties.co/v1/frontend-st-cohort-201",
+import { token, group } from ".";
+
+
+const getConfig = () => ({
+  baseUrl: `https://nomoreparties.co/v1/${group}`,
   headers: {
-    authorization: "2bb0b79e-776d-4c9d-bd4d-610499dc8342",
+    authorization: token,
     "Content-Type": "application/json",
   },
-};
+});
 
 const getResponseData = (res) => {
 	return (res.status === 200) ? res.json() : Promise.reject(res.status);
 }
 
 export const loadCardsFromServer = () => {
+	const config = getConfig()
   return fetch(`${config.baseUrl}/cards`, {
     method: "GET",
     headers: config.headers,
@@ -19,6 +23,7 @@ export const loadCardsFromServer = () => {
 };
 
 export const loadUserFromServer = () => {
+	const config = getConfig()
   return fetch(`${config.baseUrl}/users/me`, {
     method: "GET",
     headers: config.headers,
@@ -27,6 +32,7 @@ export const loadUserFromServer = () => {
 };
 
 export const addNewCard = (name, link) => {
+	const config = getConfig()
   return fetch(`${config.baseUrl}/cards`, {
     method: "POST",
     headers: config.headers,
@@ -39,6 +45,7 @@ export const addNewCard = (name, link) => {
 };
 
 export const editProfile = (name, about) => {
+	const config = getConfig()
   return fetch(`${config.baseUrl}/users/me`, {
     method: "PATCH",
     headers: config.headers,
@@ -51,6 +58,7 @@ export const editProfile = (name, about) => {
 };
 
 export const setLike = (cardId) => {
+	const config = getConfig()
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: "PUT",
     headers: config.headers,
@@ -59,6 +67,7 @@ export const setLike = (cardId) => {
 };
 
 export const removeLike = (cardId, numLikes) => {
+	const config = getConfig()
   return fetch(`${config.baseUrl}/cards/likes/${cardId}`, {
     method: "DELETE",
     headers: config.headers,
@@ -67,6 +76,7 @@ export const removeLike = (cardId, numLikes) => {
 };
 
 export const removeCard = (cardId, cardElement) => {
+	const config = getConfig()
   return fetch(`${config.baseUrl}/cards/${cardId}`, {
     method: "DELETE",
     headers: config.headers,
@@ -75,6 +85,7 @@ export const removeCard = (cardId, cardElement) => {
 };
 
 export const setAvatar = (url, popup) => {
+	const config = getConfig()
   return fetch(`${config.baseUrl}/users/me/avatar`, {
     method: "PATCH",
     headers: config.headers,
